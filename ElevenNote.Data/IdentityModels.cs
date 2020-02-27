@@ -20,19 +20,21 @@ namespace ElevenNote.Data
             return userIdentity;
         }
     }
-
+    //applicationDbContext inherits from IdentityDbContext
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {
         }
-        
+        //create new instance of applicationDbContext
         public static ApplicationDbContext Create()
         {
             return new ApplicationDbContext();
         }
+        //Database sets created for notes and categories
         public DbSet<Note> Notes { get; set; }
+        public DbSet<Category> Categories { get; set; }
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder

@@ -26,6 +26,7 @@ namespace ElevenNote.Services
                 //use the brought in model to set the title and content
                 Title = model.Title,
                 Content = model.Content,
+                CategoryId = model.CategoryId,
                 //time created is whenever this method is run
                 CreatedUtc = DateTimeOffset.Now
             };
@@ -50,6 +51,7 @@ namespace ElevenNote.Services
                         new NoteListItem
                         {
                             NoteId = e.NoteId,
+                            CategoryId = e.CategoryId,
                             Title = e.Title,
                             CreatedUtc = e.CreatedUtc
                         }
@@ -73,6 +75,7 @@ namespace ElevenNote.Services
                     new NoteDetail
                     {
                         NoteId = entity.NoteId,
+                        CategoryId = entity.CategoryId,
                         Title = entity.Title,
                         Content = entity.Content,
                         CreatedUtc = entity.CreatedUtc,
@@ -93,6 +96,7 @@ namespace ElevenNote.Services
                 //sets the note's values to the new model's values and sets the ModifiedUtc property to whenever the method is called
                 entity.Title = model.Title;
                 entity.Content = model.Content;
+                entity.CategoryId = model.CategoryId;
                 entity.ModifiedUtc = DateTimeOffset.UtcNow;
                 //returns a true/false value of whether we saved or not
                 return ctx.SaveChanges() == 1;
