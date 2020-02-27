@@ -19,14 +19,13 @@ namespace ElevenNote.WebAPI.Controllers
             var noteService = new NoteService(userId);
             return noteService;
         }
-        [HttpGet]
         public IHttpActionResult Get()
         {
             NoteService noteService = CreateNoteService();
             var notes = noteService.GetNotes();
             return Ok(notes);
         }
-        [HttpPost]
+
         public IHttpActionResult Post(NoteCreate note)
         {
             //returns a bad request if you send the wrong kind of model
@@ -43,11 +42,28 @@ namespace ElevenNote.WebAPI.Controllers
             //a note was created from the valid model
             return Ok();
         }
+        //references the GetNoteById method in NoteService to send the user information about the note
         public IHttpActionResult Get(int id)
         {
             NoteService noteService = CreateNoteService();
-            var note = NoteService.GetNoteById(id);
+            var note = noteService.GetNoteById(id);
             return Ok(note);
+        }
+        public IHttpActionResult Put(NoteEdit note)
+        {
+            //if the user inputted model is not valid
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var service = CreateNoteService();
+            //if the DbContext did not save the changes we made for some reason
+            if (!service.UpdateNote(note))
+            {
+                return InternalServerError();
+            }
+            //good :)
+            return Ok();
         }
     }
 }

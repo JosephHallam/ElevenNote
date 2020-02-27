@@ -62,11 +62,14 @@ namespace ElevenNote.Services
         {
             using (var ctx = new ApplicationDbContext())
             {
+                //finding a all the notes in DbContext
                 var entity =
                     ctx
                     .Notes
+                    //Pulling out a single Note with the parameters of it matching the user's ID and the note's ID matching the ID we put in
                     .Single(e => e.NoteId == id && e.OwnerId == _userId);
                 return
+                    //returns details of the note
                     new NoteDetail
                     {
                         NoteId = entity.NoteId,
@@ -75,6 +78,24 @@ namespace ElevenNote.Services
                         CreatedUtc = entity.CreatedUtc,
                         ModifiedUtc = entity.ModifiedUtc
                     };
+            }
+        }
+        public bool UpdateNote (NoteEdit model)
+        {
+            using (var ctx = new ApplicationDbContext())
+            {
+                //same as GetNoteById method
+                var entity =
+                    ctx
+                    .Notes
+                    //checks if the id of the model we put in matches an existing note id from the list of notes in DbContext
+                    .Single(e => e.NoteId == model.NoteId && e.OwnerId == _userId);
+                //sets the note's values to the new model's values and sets the ModifiedUtc property to whenever the method is called
+                entity.Title = model.Title;
+                entity.Content = model.Content;
+                entity.ModifiedUtc = DateTimeOffset.UtcNow;
+                //returns a true/false value of whether we saved or not
+                return ctx.SaveChanges() == 1;
             }
         }
     }
