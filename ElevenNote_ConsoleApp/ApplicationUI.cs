@@ -2,6 +2,7 @@
 using ElevenNote.Data;
 using ElevenNote.Models;
 using ElevenNote.Services;
+using ElevenNote.WebAPI.Models;
 using ImTools;
 using Microsoft.AspNet.WebHooks.Utilities;
 using System;
@@ -172,5 +173,6 @@ namespace ElevenNote_Console
             Guid id = Guid.Parse(userId);
             return id;
         }
+        public void RegisterUser(RegisterBindingModel)
     }
 }
