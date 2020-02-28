@@ -66,6 +66,9 @@ namespace ElevenNote_Console
                         Console.Clear();
                         break;
                     case "5":
+                        Console.WriteLine("Enter the username you want to search for");
+                        string username = Console.ReadLine();
+                        GetUserID(username);
                         break;
                     case "6":
                         Console.WriteLine("Please enter the title of the Note.");
@@ -157,6 +160,17 @@ namespace ElevenNote_Console
             };
             var service = GetNoteService();
             service.CreateNote(model);
+        }
+
+        public Guid GetUserID(string username)
+        {
+            string userId;
+            using (var ctx = new ApplicationDbContext())
+            {
+                userId = ctx.Users.Where(e => e.UserName == username).Single().Id;
+            }
+            Guid id = Guid.Parse(userId);
+            return id;
         }
     }
 }
