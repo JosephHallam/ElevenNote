@@ -1,9 +1,13 @@
-﻿using ElevenNote.Data;
+﻿using Braintree;
+using ElevenNote.Data;
 using ElevenNote.Models;
 using ElevenNote.Services;
+using ImTools;
+using Microsoft.AspNet.WebHooks.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,6 +16,7 @@ namespace ElevenNote_Console
     public class ApplicationUI
     {
         Guid _userID;
+        string emailInput;
         public void Run()
         {
             RunMenu();
@@ -22,8 +27,8 @@ namespace ElevenNote_Console
             while (isRunning)
             {
                 Console.Clear();
-                System.Console.WriteLine("Welcome to the ElevenNote Note-Taking System. What would you like to do?\n" +
-                    "1. Login\n" +
+                Console.WriteLine($"Welcome to the ElevenNote Note-Taking System. What would you like to do?         Logged In As:{emailInput}\n" +
+                    $"1. Login\n" +
                     "2. Display All Notes\n" +
                     "3. Display All Categories\n" +
                     "4. Search Notes by ID\n" +
@@ -38,8 +43,8 @@ namespace ElevenNote_Console
                 {
                     case "1":
                         Console.WriteLine("Enter your email (e.g. johnsmith@gmail.com)");
-                        string userInput = Console.ReadLine();
-                        Login(userInput);
+                        emailInput = Console.ReadLine();
+                        Login(emailInput);
                         break;
                     case "2":
                         DisplayAllNotes();
@@ -53,10 +58,25 @@ namespace ElevenNote_Console
                         Console.Clear();
                         break;
                     case "4":
+                        Console.WriteLine("Enter the ID of the note you want to view");
+                        int noteId = Int32.Parse(Console.ReadLine());
+                        GetNoteById(noteId);
+                        Console.WriteLine("Press any key to continue...");
+                        Console.ReadLine();
+                        Console.Clear();
                         break;
                     case "5":
                         break;
                     case "6":
+                        Console.WriteLine("Please enter the title of the Note.");
+                        string title = Console.ReadLine();
+                        Console.WriteLine("Great. Please enter the id of the category of the note.");
+                        int id = Int32.Parse(Console.ReadLine());
+                        Console.WriteLine("Last step! What are the contents of the note?");
+                        string content = Console.ReadLine();
+                        AddNote(title,id,content);
+                        Console.WriteLine("Great, your note was added. Press any key to continue...");
+                        Console.ReadLine();
                         break;
                     case "7":
                         break;
@@ -78,7 +98,13 @@ namespace ElevenNote_Console
         }
         public void Login(string emailInput)
         {
-            _userID = Guid.Parse(emailInput);
+            Guid result;
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] hash = md5.ComputeHash(Encoding.Default.GetBytes(emailInput));
+                result = new Guid(hash);
+            }
+            _userID = result;
             Console.WriteLine("Ok. Logged In.");
             Console.WriteLine("Press any key to continue...");
             Console.ReadLine();
@@ -100,6 +126,7 @@ namespace ElevenNote_Console
             List<string> noteTitleList = new List<string>();
             foreach (NoteListItem n in entity)
             {
+                noteTitleList.Add(Convert.ToString(n.NoteId));
                 noteTitleList.Add(n.Title);
             }
             string noteTitleListAsString = string.Join(" ", noteTitleList);
@@ -107,14 +134,7 @@ namespace ElevenNote_Console
         }
         public void DisplayAllCategories()
         {
-            List<Category> categoryList = _context.Categories.ToList();
-            List<string> categoryNameList = new List<string>();
-            foreach (Category c in categoryList)
-            {
-                categoryNameList.Add(c.Name);
-            }
-            string categoryListAsString = string.Join(" ", categoryNameList);
-            Console.WriteLine(categoryListAsString);
+
         }
         public void GetCategoryById(int id)
         {
@@ -122,7 +142,21 @@ namespace ElevenNote_Console
         }
         public void GetNoteById(int id)
         {
-
+            var service = GetNoteService();
+            var entity = service.GetNoteById(id);
+            Console.WriteLine(entity.Title);
+            Console.WriteLine(entity.Content);
+        }
+        public void AddNote(string title, int id, string content)
+        {
+            NoteCreate model = new NoteCreate
+            {
+                CategoryId = id,
+                Title = title,
+                Content = content
+            };
+            var service = GetNoteService();
+            service.CreateNote(model);
         }
     }
 }

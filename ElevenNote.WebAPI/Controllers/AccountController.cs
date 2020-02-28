@@ -173,7 +173,7 @@ namespace ElevenNote.WebAPI.Controllers
             {
                 return BadRequest("External login failure.");
             }
-
+            //Potentially take part of this method to search the Db for a registered account with that username (i think ?)
             ExternalLoginData externalData = ExternalLoginData.FromIdentity(ticket.Identity);
 
             if (externalData == null)
